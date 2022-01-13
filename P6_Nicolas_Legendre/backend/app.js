@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require ('body-parser');
+
+const path = require('path');
 const userRoute = require ('./routes/user');
-//const sauceRoute = require ('./routes/Sauce');
+const saucesRoute = require ('./routes/Sauce');
 
 
 const mongoose = require('mongoose');
@@ -25,12 +27,16 @@ app.use((req, res, next) => {
   next();
 });
 
-  app.use (bodyParser.json());// permet de rendre les ressources exploitables
+app.use (bodyParser.json());// permet de rendre les ressources exploitables
 
-  //Routes utilisateurs
-  app.use('/api/auth', userRoute);
+app.use('/images', express.static(path.join(__dirname, 'images')));
+  
   //Routes sauces
-  //app.use('/api/auth', sauceRoute);
+app.use('/api/sauces',saucesRoute);
+  //Routes utilisateurs
+app.use( '/api/auth',userRoute);
+
+  
 
 
 

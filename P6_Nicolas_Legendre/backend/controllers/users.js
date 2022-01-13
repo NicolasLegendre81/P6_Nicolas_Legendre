@@ -2,6 +2,7 @@
 const bcrypt = require ('bcrypt');
 //import du package jsonwebtoken afin d'attribuer un token a l'utilisateur lors de la connexion
 const jwt = require ('jsonwebtoken');
+const sanitize = require ('mongo-sanitize')
 
 // Import du package password-validator a des fins de controle du format du mot de passe
 const passwordValidator = require('password-validator');
@@ -24,20 +25,21 @@ passwordSchema
 
 //creation d'un nouvel utilisateur et hashage du mdp a l'aide de bcrypt
 exports.signup = (req,res, next) => {
-
+    const email = sanitize(req.body.email);
+    const password = sanitize(req.body.password)
     //Si le mot de passe est au format attendu 
     //le salage du mdp est effectué 10 fois,la valeur peut être augmentée afin d'augmenter
     //la sécurité mais la fonction mettra plus de temps a être exécutée dans ce cas
     if(passwordSchema.validate(req.body.password)){
-        bcrypt.hash(req.body.password,10)
+        bcrypt.hash(password,10)
         .then(hash =>{
             const user = new User ({
-                email: req.body.email,
+                email:email,
                 password:hash
             });
             user.save()
-            .then(() => res.status(201).json({message: 'Un nouvel utilisateur a été crée!'}))
-            .catch(error=> res.status(400).json({error}));
+                .then(() => res.status(201).json({message: 'Un nouvel utilisateur a été crée!'}))
+                .catch(error=> res.status(400).json({error}));
         })
         .catch(error => res.status(500).json({error}))}
     else{
@@ -48,14 +50,16 @@ exports.signup = (req,res, next) => {
 
 //Verification pour permettre la connection d'un utilisateur existant
 exports.login = (req,res,next) =>{
+    const email = sanitize(req.body.email);
+    const password = sanitize(req.body.password);
     //recherche de l'utilisateur dans la base de données
-    User.findOne({email: req.body.email})
+    User.findOne({email:email})
         .then(user => {
             if (!user) {
                 return res.status(401).json({message:'Utilisateur introuvable'});
             }
             //Si l'utilisateur est trouvé on compare le mot de passe renseigné et celui enregistré
-            bcrypt.compare(req.body.password, user.password)
+            bcrypt.compare(password, user.password)
                 .then (valid =>{
                     if (!valid) {                        
                        return res.status(401).json({error:'Mot de passe incorect'});
