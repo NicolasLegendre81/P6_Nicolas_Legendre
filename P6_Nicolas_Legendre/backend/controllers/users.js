@@ -2,6 +2,7 @@
 const bcrypt = require ('bcrypt');
 //import du package jsonwebtoken afin d'attribuer un token a l'utilisateur lors de la connexion
 const jwt = require ('jsonwebtoken');
+//Le module sanitize permet de nettoyer le corps de la requête
 const sanitize = require ('mongo-sanitize')
 
 // Import du package password-validator a des fins de controle du format du mot de passe

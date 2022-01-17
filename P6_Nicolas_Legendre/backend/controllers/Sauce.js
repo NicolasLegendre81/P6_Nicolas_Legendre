@@ -1,6 +1,6 @@
 //importation du schéma de sauce
 const Sauce = require('../models/Sauce');
-
+//importation du module mongo-sanatize afin de nettoyer le corps de la requête
 const sanitize = require("mongo-sanitize");
 
 //importation du module intégré à node permettant d'intéragir avec les fichiers 
@@ -64,10 +64,60 @@ exports.deleteSauce = (req, res, next) => {
             const filename = sauce.imageUrl.split("/images/")[1]; //On récupère le deuxième élément [1] du tableau pour avoir le nom du fichier
             fs.unlink(`images/${filename}`, () => {
                 Sauce.deleteOne({ _id: req.params.id })
-                    .then(() => res.status(200).json({ message: "Objet supprimé !"}))
+                    .then(() => res.status(200).json({ message: "La sauce a été supprimée !"}))
                     .catch(error => res.status(400).json({ error }));
             })
         })
         .catch(error => res.status(500).json({ error }));
 };
-
+//Liker ou Disliker une sauce
+exports.likeOrDislike = (req,res,next) => {
+    Sauce.findOne({_id:req.params.id})
+    .then(sauce =>{
+        const liked = req.body.like;
+        const user = req.body.userId;
+        //Si la sauce est likée
+        if(liked === 1) {
+            if(!sauce.usersLiked.includes(user) && !sauce.usersDisliked.includes(user)){
+            sauce.likes++;
+            sauce.usersLiked.push(user);    
+        }console.log('sauce likée')   
+       
+        }
+        //Si la sauce est dislikée
+        if(liked === -1){
+            if(!sauce.usersDisliked.includes(user)&& !sauce.usersLiked.includes(user)){
+            sauce.dislikes++;
+            sauce.usersDisliked.push(user);}
+            console.log('saucedislikée')
+        }
+        //Si un like est supprimé
+        if(liked === 0){
+            if(sauce.usersLiked.includes(user)){
+                sauce.likes--;
+                sauce.usersLiked.splice((sauce.usersLiked.indexOf(user)),1); 
+                console.log ('like supprimé')   
+            }
+            //Si un dislike est supprimé
+            if(sauce.usersDisliked.includes(user)){
+                sauce.dislikes--;
+                sauce.usersDisliked.splice((sauce.usersDisliked.indexOf(user)),1);  
+                console.log ('dislike supprimé')  
+            }
+        }
+        Sauce.updateOne(
+            {_id: req.params.id},
+            {
+            likes: sauce.likes,
+            dislikes: sauce.dislikes,
+            usersLiked: sauce.usersLiked,
+            usersDisliked: sauce.usersDisliked,
+            _id: req.params.id
+            }
+        )
+        .then(() => res.status(200).json({ message: "Votre évaluation a été prise en considération"}))
+        .catch(error => res.status(400).json({error}));
+    })
+    .catch(error => res.status(404).json({error}));
+    
+}
