@@ -50,7 +50,7 @@ exports.createSauce = (req,res,next) => {
 //Modification d'une sauce
 exports.modifySauce = (req,res,next)=>{
     const sauceObject = req.file ?{
-    ...JSON.parse(req,body.sauce),
+    ...JSON.parse(req.body.sauce),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 } : {...req.body};
 Sauce.updateOne({ _id: req.params.id} , {...sauceObject, _id: req.params.id})
@@ -80,8 +80,9 @@ exports.likeOrDislike = (req,res,next) => {
         if(liked === 1) {
             if(!sauce.usersLiked.includes(user) && !sauce.usersDisliked.includes(user)){
             sauce.likes++;
-            sauce.usersLiked.push(user);    
-        }console.log('sauce likée')   
+            sauce.usersLiked.push(user);
+            console.log(sauce)    
+            }   
        
         }
         //Si la sauce est dislikée
@@ -89,22 +90,23 @@ exports.likeOrDislike = (req,res,next) => {
             if(!sauce.usersDisliked.includes(user)&& !sauce.usersLiked.includes(user)){
             sauce.dislikes++;
             sauce.usersDisliked.push(user);}
-            console.log('saucedislikée')
+            console.log(sauce)
         }
-        //Si un like est supprimé
         if(liked === 0){
+            //Si un like est supprimé
             if(sauce.usersLiked.includes(user)){
                 sauce.likes--;
                 sauce.usersLiked.splice((sauce.usersLiked.indexOf(user)),1); 
-                console.log ('like supprimé')   
+                console.log(sauce) 
             }
             //Si un dislike est supprimé
             if(sauce.usersDisliked.includes(user)){
                 sauce.dislikes--;
                 sauce.usersDisliked.splice((sauce.usersDisliked.indexOf(user)),1);  
-                console.log ('dislike supprimé')  
-            }
+                console.log(sauce) 
+            }        
         }
+    
         Sauce.updateOne(
             {_id: req.params.id},
             {
