@@ -11,7 +11,7 @@ const userControl = require ('../controllers/users');
 router.post('/signup',userControl.signup);
 
 //Connection d'un utilisateur
-router.post('/login', userControl.login);
+router.post('/login',userControl.login);
 
 
 module.exports =router;
