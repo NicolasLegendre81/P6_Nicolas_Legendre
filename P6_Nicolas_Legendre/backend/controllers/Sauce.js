@@ -20,7 +20,6 @@ exports.getOneSauce = (req, res, next) => {
     .then( sauce => res.status(200).json(sauce))
     .catch( error => res.status(404).json({ error }))
 };
-
 //Création d'une nouvelle sauce 
 exports.createSauce = (req,res,next) => {
     //Conversion de la chaine js envoyée dans la requête en objet
@@ -28,13 +27,12 @@ exports.createSauce = (req,res,next) => {
     const sauceObject = sanitize(sauceParser);
     //Suppression de l'id envoyée par le frontend
     delete sauceObject._id;
-    
+
     //création de la nouvelle instance 
     const sauce = new Sauce ({
         ...sauceObject,
         //définition de l'url de l'image
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-
     });
     sauce.save()
     
@@ -45,7 +43,6 @@ exports.createSauce = (req,res,next) => {
         .catch(error => res.status(400).json({
         error
       }));
-
 };
 //Modification d'une sauce
 exports.modifySauce = (req,res,next)=>{
@@ -80,30 +77,25 @@ exports.likeOrDislike = (req,res,next) => {
         if(liked === 1) {
             if(!sauce.usersLiked.includes(user) && !sauce.usersDisliked.includes(user)){
             sauce.likes++;
-            sauce.usersLiked.push(user);
-            console.log(sauce)    
+            sauce.usersLiked.push(user);  
             }   
-       
         }
         //Si la sauce est dislikée
         if(liked === -1){
             if(!sauce.usersDisliked.includes(user)&& !sauce.usersLiked.includes(user)){
             sauce.dislikes++;
             sauce.usersDisliked.push(user);}
-            console.log(sauce)
         }
         if(liked === 0){
             //Si un like est supprimé
             if(sauce.usersLiked.includes(user)){
                 sauce.likes--;
                 sauce.usersLiked.splice((sauce.usersLiked.indexOf(user)),1); 
-                console.log(sauce) 
             }
             //Si un dislike est supprimé
             if(sauce.usersDisliked.includes(user)){
                 sauce.dislikes--;
                 sauce.usersDisliked.splice((sauce.usersDisliked.indexOf(user)),1);  
-                console.log(sauce) 
             }        
         }
     
