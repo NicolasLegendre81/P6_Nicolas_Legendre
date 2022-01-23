@@ -1,3 +1,4 @@
+//import du package de gestion des fichiers
 const multer = require('multer');
 
 const MIME_TYPES = {
@@ -5,7 +6,7 @@ const MIME_TYPES = {
     'image/jpeg': 'jpg',
     'image/png':'png'
 };
-
+// Configuration du chemin et du nom des fichiers entrants
 const storage = multer.diskStorage({
     destination: (req,file,callback) =>{
         callback(null,'images');
